@@ -7,6 +7,7 @@ import com.booking.testing.booking.RoomData;
 import com.booking.testing.booking.RoomResponse;
 import io.cucumber.java.DataTableType;
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import net.serenitybdd.rest.SerenityRest;
 import net.thucydides.core.annotations.Steps;
@@ -25,6 +26,7 @@ public class StepDefinitions {
     BookRoomActions bookRoomActions;
 
     RoomData actualRoomData;
+    Integer expectedTotalPrice;
 
     @DataTableType
     public Availability availabilityEntry(Map<String, String> entry) {
@@ -71,19 +73,33 @@ public class StepDefinitions {
     @When("I book a room starting {string} for {string}")
     public void iBookARoomStartingFor(String checkInDate, String numOfDays) {
         bookRoomActions.bookRoom(new RoomData(checkInDate, Integer.parseInt(numOfDays)));
-        actualRoomData = roomResponse.returnedRoom();
     }
 
     @And("a room booking was successfully added starting {string} for {string}")
     public void aRoomBookingWasSuccessfullyAddedStartingFor(String checkInDate, String numOfDays) {
         RoomData expectedRoomData = new RoomData(checkInDate, Integer.parseInt(numOfDays));
-        Integer expectedTotalPrice = bookRoomActions.getExpectedTotalPrice(expectedRoomData.getCheckInDate(),
-                expectedRoomData.getNumOfDays());
+        actualRoomData = roomResponse.returnedRoom();
 
         expectedRoomData.setCheckOutDate(
                 DateHelper.daysFrom(expectedRoomData.getCheckInDate(), expectedRoomData.getNumOfDays()));
         expectedRoomData.setTotalPrice(expectedTotalPrice);
 
         assertThat(actualRoomData).usingRecursiveComparison().ignoringFields("numOfDays").isEqualTo(expectedRoomData);
+    }
+
+    @And("room_available field should be grater than {int}")
+    public void fieldShouldBeGraterThan(int expected) {
+        Availability actualAvailability = SerenityRest.lastResponse().jsonPath().getObject("", Availability.class);
+        assertThat(actualAvailability.getRooms_available()).isGreaterThan(expected);
+    }
+
+    @When("I calculate expectedTotalPrice for room booked starting {string} for {string}")
+    public void iCalculateExpectedTotalPriceForBroomBookedStartingFor(String checkInDate, String numOfDays) {
+        expectedTotalPrice = bookRoomActions.getExpectedTotalPrice(checkInDate, Integer.parseInt(numOfDays));
+    }
+
+    @Given("I calculate expectedTotalPrice for room booked starting")
+    public void iCalculateExpectedTotalPriceForRoomBookedStarting() {
+
     }
 }

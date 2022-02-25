@@ -10,7 +10,8 @@ Feature: Booking a room
       | checkInDate | checkOutDate | totalPrice |
       | 2013-04-10  | 2013-04-11   | 130        |
 
-  Scenario Outline: A user books 1 a room
+  Scenario Outline: A user books a room
+    Given I calculate expectedTotalPrice for room booked starting "<checkInDate>" for "<numOfDays>"
     When I book a room starting "<checkInDate>" for "<numOfDays>"
     Then the API should return status 200
     And the response content is json
