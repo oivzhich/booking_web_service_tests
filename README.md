@@ -1,4 +1,4 @@
-# Pet Store Open API  testing with Serenity BDD framework
+# Booking web service testing with Serenity BDD framework
 
 # Pre-requirements
 
