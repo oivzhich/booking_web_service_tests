@@ -11,7 +11,7 @@ public class AvailabilityActions {
             ConfigFactory.create(PropertiesConfiguration.class, System.getProperties());
 
     @Step("Check availability by date")
-    public void checkAvailability(String date) {
+    public Availability checkAvailability(String date) {
         SerenityRest.given()
                     .relaxedHTTPSValidation()
                     .contentType("application/json")
@@ -20,5 +20,6 @@ public class AvailabilityActions {
                     .all()
                     .when()
                     .get(String.format("%s/%s/%s", conf.baseUrl(), ServiceEndPoints.AVAILABILITY.getUrl(), date));
+        return SerenityRest.lastResponse().as(Availability.class);
     }
 }

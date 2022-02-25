@@ -25,4 +25,9 @@ public class RoomData {
         this.checkOutDate = entry.getOrDefault("checkOutDate", null);
         this.totalPrice = entry.get("totalPrice") == null ? null : Integer.parseInt(entry.get("totalPrice"));
     }
+
+    public RoomData(String checkInDate, Integer numOfDays) {
+        this.numOfDays = numOfDays;
+        this.checkInDate = checkInDate;
+    }
 }

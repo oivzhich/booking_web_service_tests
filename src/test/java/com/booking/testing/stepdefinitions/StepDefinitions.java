@@ -24,6 +24,8 @@ public class StepDefinitions {
     @Steps
     BookRoomActions bookRoomActions;
 
+    RoomData actualRoomData;
+
     @DataTableType
     public Availability availabilityEntry(Map<String, String> entry) {
         return new Availability(entry);
@@ -64,5 +66,24 @@ public class StepDefinitions {
     public void aRoomWithFollowingDataShouldBeAdded(RoomData expectedRoomData) {
         RoomData actualRoomData = roomResponse.returnedRoom();
         assertThat(actualRoomData).usingRecursiveComparison().isEqualTo(expectedRoomData);
+    }
+
+    @When("I book a room starting {string} for {string}")
+    public void iBookARoomStartingFor(String checkInDate, String numOfDays) {
+        bookRoomActions.bookRoom(new RoomData(checkInDate, Integer.parseInt(numOfDays)));
+        actualRoomData = roomResponse.returnedRoom();
+    }
+
+    @And("a room booking was successfully added starting {string} for {string}")
+    public void aRoomBookingWasSuccessfullyAddedStartingFor(String checkInDate, String numOfDays) {
+        RoomData expectedRoomData = new RoomData(checkInDate, Integer.parseInt(numOfDays));
+        Integer expectedTotalPrice = bookRoomActions.getExpectedTotalPrice(expectedRoomData.getCheckInDate(),
+                expectedRoomData.getNumOfDays());
+
+        expectedRoomData.setCheckOutDate(
+                DateHelper.daysFrom(expectedRoomData.getCheckInDate(), expectedRoomData.getNumOfDays()));
+        expectedRoomData.setTotalPrice(expectedTotalPrice);
+
+        assertThat(actualRoomData).usingRecursiveComparison().ignoringFields("numOfDays").isEqualTo(expectedRoomData);
     }
 }
